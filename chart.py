@@ -1,41 +1,31 @@
-# chart.py
-# Author: Smriti Rani
-# Email: 24f2007963@ds.study.iitm.ac.in
-
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
-# 1. Generate synthetic seasonal revenue data
+# Generate synthetic data
 np.random.seed(42)
-months = pd.date_range("2024-01-01", "2024-12-31", freq="M").strftime("%b")
-segments = ["Premium", "Standard", "Budget"]
+months = pd.date_range(start="2023-01", periods=12, freq="M")
+segments = ["Retail", "Wholesale", "Online"]
+data = {
+    "Month": np.tile(months, len(segments)),
+    "Segment": np.repeat(segments, len(months)),
+    "Revenue": np.random.randint(80, 200, len(months) * len(segments))
+}
+df = pd.DataFrame(data)
 
-data = []
-for seg in segments:
-    base = np.linspace(100, 200, len(months))  # growth trend
-    seasonal = 20 * np.sin(np.linspace(0, 3 * np.pi, len(months)))  # seasonality
-    noise = np.random.normal(0, 10, len(months))  # random fluctuations
-    revenue = base + seasonal + noise + np.random.randint(50, 150)
-    data.extend(zip(months, [seg]*len(months), revenue))
-
-df = pd.DataFrame(data, columns=["Month", "Segment", "Revenue"])
-
-# 2. Set Seaborn style
+# Professional styling
 sns.set_style("whitegrid")
 sns.set_context("talk")
 
-# 3. Create lineplot
-plt.figure(figsize=(8, 8))  # ensures 512x512 pixels with dpi=64
-sns.lineplot(data=df, x="Month", y="Revenue", hue="Segment", marker="o", palette="deep")
+# Create fixed 512x512 output
+fig, ax = plt.subplots(figsize=(8, 8), dpi=64)  # 8*64 = 512 pixels
 
-# 4. Customize chart
-plt.title("Monthly Revenue Trends by Customer Segment", fontsize=16, weight="bold")
-plt.xlabel("Month")
-plt.ylabel("Revenue (in $1000s)")
-plt.xticks(rotation=45)
+sns.lineplot(data=df, x="Month", y="Revenue", hue="Segment", marker="o", ax=ax)
+ax.set_title("Monthly Revenue Trends by Segment", fontsize=16)
+ax.set_xlabel("Month")
+ax.set_ylabel("Revenue (in $K)")
 
-# 5. Save chart
-plt.savefig("chart.png", dpi=64, bbox_inches="tight")
+# Save WITHOUT bbox_inches to keep 512x512
+plt.savefig("chart.png", dpi=64)
 plt.close()
